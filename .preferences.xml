@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<preferences>
+  <sf.eclipse.odt.core.builder.stores.SourcePaths>
+    <source-folders>
+      <source-folder>/PL-Exercise4/src</source-folder>
+    </source-folders>
+  </sf.eclipse.odt.core.builder.stores.SourcePaths>
+  <sf.eclipse.odt.core.builder.stores.BinaryPaths>
+    <binary-folder>/PL-Exercise4/bin</binary-folder>
+  </sf.eclipse.odt.core.builder.stores.BinaryPaths>
+  <sf.eclipse.odt.core.builder.stores.BuilderConfigurationStore>
+    <builder-configurations/>
+  </sf.eclipse.odt.core.builder.stores.BuilderConfigurationStore>
+  <sf.eclipse.odt.core.builder.stores.LibraryStore>
+    <libraries/>
+  </sf.eclipse.odt.core.builder.stores.LibraryStore>
+  <sf.eclipse.odt.core.builder.stores.ExecutableStore>
+    <executables/>
+  </sf.eclipse.odt.core.builder.stores.ExecutableStore>
+  <sf.eclipse.odt.core.builder.stores.GrammarStore>
+    <grammars/>
+  </sf.eclipse.odt.core.builder.stores.GrammarStore>
+</preferences>
