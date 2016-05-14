@@ -53,6 +53,7 @@ let rec parse_term = function
             | _ -> raise (SyntaxError "Expected right parenthesis\n")
     )
     (* Error *)
+    | [] -> raise (SyntaxError "Expected tokens\n")
     | _ -> raise (SyntaxError "Unexpected token\n")
 
 let parse str = let term, tokens = parse_term (tokenize (string_to_list str)) in
@@ -64,3 +65,53 @@ let rec format_term = function
     | Variable v -> v
     | Abstraction (id, t) -> "(\\" ^ id ^ "." ^ (format_term t) ^ ")"
     | Application (t1, t2) -> "(" ^ (format_term t1) ^ " " ^ (format_term t2) ^ ")"
+
+(* 
+** Bonus 
+*)
+
+(* Parse an 'atmoic' (non-application) term *)
+let rec parse_term_conv_ = function
+    (* Variable *)
+    | Literal id :: tokens' -> (Variable id, tokens')
+    (* Let expression *)
+    | LetTok :: Literal id :: EqTok :: tokens' -> let t1, tokens'' = parse_term_conv tokens' in (
+        match tokens'' with
+        | InTok :: tokens''' -> let t2, tokens'''' = parse_term_conv tokens''' in
+            (Application ((Abstraction (id, t2)), t1), tokens'''')
+        | _ -> raise (SyntaxError "Expected 'in'\n")
+    )
+    (* Lambda expression *)
+    | LambdaTok :: Literal id :: DotTok :: tokens' -> let t, tokens'' = parse_term_conv tokens' in (
+        (Abstraction (id, t), tokens'')
+    )
+    (* Enclosed expression *)
+    | LParen :: tokens' -> let t1, tokens'' = parse_term_conv tokens' in (
+        match tokens'' with
+        | RParen :: tokens''' -> (t1, tokens''')
+        | _ -> raise (SyntaxError "Expected right parenthesis\n")
+    )
+    (* Error *)
+    | [] -> raise (SyntaxError "Expected tokens\n")
+    | _ -> raise (SyntaxError "Unexpected token\n")
+
+
+(* Parse as many atomic terms as possible *)
+and parse_terms_conv tokens = try let term, tokens' = parse_term_conv_ tokens in
+                                      let terms, tokens'' = parse_terms_conv tokens' in
+                                      (term :: terms, tokens'')
+                                  with SyntaxError _ -> [], tokens
+
+(* Parse single (not necessarily atomic) term *)
+and parse_term_conv tokens =
+    let terms, tokens' = parse_terms_conv tokens in
+    match terms with
+    (* Parse multiple atomic terms a single sequence of applications *)
+    | term :: terms' -> (List.fold_left (fun t1 t2 -> Application (t1, t2)) term terms', tokens')
+    | [] -> (* This means there was an error parsing a term, and it was caught in parse_terms_conv.
+               Naturally we should raise an exception here. In order to have a helpful message with
+               the exection, we'll simply call parse_term_conv_, which should raise an exeption. *)
+            parse_term_conv_ tokens
+
+(* Note: There should be a simpler solution than this co-recursion mess, but it works. *)
+
