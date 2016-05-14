@@ -33,13 +33,13 @@ let rec parse_term = function
         match tokens'' with
         | InTok :: tokens''' -> let t2, tokens'''' = parse_term tokens''' in
             (Application ((Abstraction (id, t2)), t1), tokens'''')
-        | _ -> raise (SyntaxError "Expected 'in'\n")
+        | _ -> raise (SyntaxError "Expected 'in'")
     )
     (* Lambda expression *)
     | LParen :: LambdaTok :: Literal id :: DotTok :: tokens' -> let t, tokens'' = parse_term tokens' in (
         match tokens'' with
         | RParen :: tokens''' -> (Abstraction (id, t), tokens''')
-        | _ -> raise (SyntaxError "Expected right parenthesis\n")
+        | _ -> raise (SyntaxError "Expected right parenthesis")
     )
     (* Enclosed expression / Application expression*)
     | LParen :: tokens' -> let t1, tokens'' = parse_term tokens' in (
@@ -50,16 +50,16 @@ let rec parse_term = function
         | _ -> let t2, tokens''' = parse_term tokens'' in
             match tokens''' with
             | RParen :: tokens'''' -> (Application (t1, t2), tokens'''')
-            | _ -> raise (SyntaxError "Expected right parenthesis\n")
+            | _ -> raise (SyntaxError "Expected right parenthesis")
     )
     (* Error *)
-    | [] -> raise (SyntaxError "Expected tokens\n")
-    | _ -> raise (SyntaxError "Unexpected token\n")
+    | [] -> raise (SyntaxError "Expected tokens")
+    | _ -> raise (SyntaxError "Unexpected token")
 
 let parse str = let term, tokens = parse_term (tokenize (string_to_list str)) in
     match tokens with
     | [] -> (term)
-    | _ -> raise (SyntaxError "Unexpected tokens\n")
+    | _ -> raise (SyntaxError "Unexpected tokens")
 
 let rec format_term = function
     | Variable v -> v
@@ -79,7 +79,7 @@ let rec parse_term_conv_ = function
         match tokens'' with
         | InTok :: tokens''' -> let t2, tokens'''' = parse_term_conv tokens''' in
             (Application ((Abstraction (id, t2)), t1), tokens'''')
-        | _ -> raise (SyntaxError "Expected 'in'\n")
+        | _ -> raise (SyntaxError "Expected 'in'")
     )
     (* Lambda expression *)
     | LambdaTok :: Literal id :: DotTok :: tokens' -> let t, tokens'' = parse_term_conv tokens' in (
@@ -89,11 +89,11 @@ let rec parse_term_conv_ = function
     | LParen :: tokens' -> let t1, tokens'' = parse_term_conv tokens' in (
         match tokens'' with
         | RParen :: tokens''' -> (t1, tokens''')
-        | _ -> raise (SyntaxError "Expected right parenthesis\n")
+        | _ -> raise (SyntaxError "Expected right parenthesis")
     )
     (* Error *)
-    | [] -> raise (SyntaxError "Expected tokens\n")
-    | _ -> raise (SyntaxError "Unexpected token\n")
+    | [] -> raise (SyntaxError "Expected tokens")
+    | _ -> raise (SyntaxError "Unexpected token")
 
 
 (* Parse as many atomic terms as possible *)
