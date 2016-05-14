@@ -41,7 +41,26 @@ let rec substitute var replacement term = match term with
                                  else let z = fresh_var (List.fold_left StringSet.union StringSet.empty [fv replacement; fv t; StringSet.singleton v]) in
                                       Abstraction (z, substitute var replacement (substitute v (Variable z) t))
 
+
+let apply_abs t1 t2 = match  t1 with
+    | Abstraction (v, t) -> Some (substitute v t2 t)
+    | _ -> None
+
+let rec reduce_strict = function
+    | Variable v -> None
+    | Abstraction (_, _) -> None
+    | Application (t1, t2) -> (* Try E-App1 *)
+                              let reduced_t1 = reduce_strict t1 in
+                              match reduced_t1 with
+                              | Some t1' -> Some (Application (t1', t2))
+                              | None -> (* Try E-App2 *)
+                                        let reduced_t2 = reduce_strict t2 in
+                                        match reduced_t2 with
+                                        | Some t2' -> Some (Application (t1, t2'))
+                                        | None -> (* Try E-AppAbs *)
+                                                  apply_abs t1 t2
+
 let reduce_normal term = None
-let reduce_strict term = None
+
 let reduce_lazy term = None
 
