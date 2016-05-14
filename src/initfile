@@ -1,0 +1,5 @@
+open Parser;;
+open Reducer;;
+open Utils;;
+open Lexer;;
+
