@@ -29,25 +29,30 @@ let rec parse_term = function
     (* Variable *)
     | Literal id :: tokens' -> (Variable id, tokens')
     (* Let expression *)
-    | LetTok :: Literal id :: EqTok :: tokens' -> let t1, tokens'' = parse_term tokens' in (
+    | LetTok :: Literal id :: EqTok :: tokens' ->
+        let t1, tokens'' = parse_term tokens' in (
         match tokens'' with
-        | InTok :: tokens''' -> let t2, tokens'''' = parse_term tokens''' in
+        | InTok :: tokens''' ->
+            let t2, tokens'''' = parse_term tokens''' in
             (Application ((Abstraction (id, t2)), t1), tokens'''')
         | _ -> raise (SyntaxError "Expected 'in'")
     )
     (* Lambda expression *)
-    | LParen :: LambdaTok :: Literal id :: DotTok :: tokens' -> let t, tokens'' = parse_term tokens' in (
+    | LParen :: LambdaTok :: Literal id :: DotTok :: tokens' ->
+        let t, tokens'' = parse_term tokens' in (
         match tokens'' with
         | RParen :: tokens''' -> (Abstraction (id, t), tokens''')
         | _ -> raise (SyntaxError "Expected right parenthesis")
     )
     (* Enclosed expression / Application expression*)
-    | LParen :: tokens' -> let t1, tokens'' = parse_term tokens' in (
+    | LParen :: tokens' ->
+        let t1, tokens'' = parse_term tokens' in (
         match tokens'' with
         (* Enclosed expression *)
         | RParen :: tokens''' -> (t1, tokens''')
         (* Application expression *)
-        | _ -> let t2, tokens''' = parse_term tokens'' in
+        | _ ->
+            let t2, tokens''' = parse_term tokens'' in
             match tokens''' with
             | RParen :: tokens'''' -> (Application (t1, t2), tokens'''')
             | _ -> raise (SyntaxError "Expected right parenthesis")
@@ -56,7 +61,8 @@ let rec parse_term = function
     | [] -> raise (SyntaxError "Expected tokens")
     | _ -> raise (SyntaxError "Unexpected token")
 
-let parse str = let term, tokens = parse_term (tokenize (string_to_list str)) in
+let parse str =
+    let term, tokens = parse_term (tokenize (string_to_list str)) in
     match tokens with
     | [] -> (term)
     | _ -> raise (SyntaxError "Unexpected tokens")
@@ -75,18 +81,22 @@ let rec parse_term_conv_ = function
     (* Variable *)
     | Literal id :: tokens' -> (Variable id, tokens')
     (* Let expression *)
-    | LetTok :: Literal id :: EqTok :: tokens' -> let t1, tokens'' = parse_term_conv tokens' in (
+    | LetTok :: Literal id :: EqTok :: tokens' ->
+        let t1, tokens'' = parse_term_conv tokens' in (
         match tokens'' with
-        | InTok :: tokens''' -> let t2, tokens'''' = parse_term_conv tokens''' in
+        | InTok :: tokens''' ->
+            let t2, tokens'''' = parse_term_conv tokens''' in
             (Application ((Abstraction (id, t2)), t1), tokens'''')
         | _ -> raise (SyntaxError "Expected 'in'")
     )
     (* Lambda expression *)
-    | LambdaTok :: Literal id :: DotTok :: tokens' -> let t, tokens'' = parse_term_conv tokens' in (
+    | LambdaTok :: Literal id :: DotTok :: tokens' ->
+        let t, tokens'' = parse_term_conv tokens' in (
         (Abstraction (id, t), tokens'')
     )
     (* Enclosed expression *)
-    | LParen :: tokens' -> let t1, tokens'' = parse_term_conv tokens' in (
+    | LParen :: tokens' ->
+        let t1, tokens'' = parse_term_conv tokens' in (
         match tokens'' with
         | RParen :: tokens''' -> (t1, tokens''')
         | _ -> raise (SyntaxError "Expected right parenthesis")
@@ -97,10 +107,12 @@ let rec parse_term_conv_ = function
 
 
 (* Parse as many atomic terms as possible *)
-and parse_terms_conv tokens = try let term, tokens' = parse_term_conv_ tokens in
-                                      let terms, tokens'' = parse_terms_conv tokens' in
-                                      (term :: terms, tokens'')
-                                  with SyntaxError _ -> [], tokens
+and parse_terms_conv tokens =
+    try
+        let term, tokens' = parse_term_conv_ tokens in
+        let terms, tokens'' = parse_terms_conv tokens' in
+        (term :: terms, tokens'')
+    with SyntaxError _ -> [], tokens
 
 (* Parse single (not necessarily atomic) term *)
 and parse_term_conv tokens =
