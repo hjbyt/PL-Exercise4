@@ -69,7 +69,7 @@ let parse str =
 
 let rec format_term = function
     | Variable v -> v
-    | Abstraction (id, t) -> "(\\" ^ id ^ "." ^ (format_term t) ^ ")"
+    | Abstraction (id, t) -> "(\\" ^ id ^ ". " ^ (format_term t) ^ ")"
     | Application (t1, t2) -> "(" ^ (format_term t1) ^ " " ^ (format_term t2) ^ ")"
 
 (* 
@@ -136,7 +136,7 @@ let parse_conv str =
 
 let rec format_term_conv = function
     | Variable v -> v
-    | Abstraction (id, t) -> "\\" ^ id ^ "." ^ (format_term_conv t)
+    | Abstraction (id, t) -> "\\" ^ id ^ ". " ^ (format_term_conv t)
     | Application (t1, t2) ->
 	let formatted_t1 = format_term_conv t1 in
         let formatted_t2 = format_term_conv t2 in
