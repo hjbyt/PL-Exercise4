@@ -76,6 +76,8 @@ let rec format_term = function
 ** Bonus 
 *)
 
+(* Note: There should be a simpler solution to parseing than this co-recursion mess, but it works. *)
+
 (* Parse an 'atmoic' (non-application) term *)
 let rec parse_term_conv_ = function
     (* Variable *)
@@ -125,5 +127,30 @@ and parse_term_conv tokens =
                the exection, we'll simply call parse_term_conv_, which should raise an exeption. *)
             parse_term_conv_ tokens
 
-(* Note: There should be a simpler solution than this co-recursion mess, but it works. *)
+(* Note: this function isn't part of the exercise, but is here for testing *)
+let parse_conv str =
+    let term, tokens = parse_term_conv (tokenize (string_to_list str)) in
+    match tokens with
+    | [] -> (term)
+    | _ -> raise (SyntaxError "Unexpected tokens")
+
+let rec format_term_conv = function
+    | Variable v -> v
+    | Abstraction (id, t) -> "\\" ^ id ^ "." ^ (format_term_conv t)
+    | Application (t1, t2) ->
+	let formatted_t1 = format_term_conv t1 in
+        let formatted_t2 = format_term_conv t2 in
+        (* If t1 is Abstraction, then enclose it with parenthesis *)
+        let formatted_t1' =
+            match t1 with
+            | Abstraction _ -> "(" ^ formatted_t1 ^ ")"
+            | _ -> formatted_t1
+            in
+        (* If t2 is Application, then enclose it with parenthesis *)
+        let formatted_t2' =
+            match t2 with
+            | Application _ -> "(" ^ formatted_t2 ^ ")"
+            | _ -> formatted_t2
+            in
+        formatted_t1' ^ " " ^ formatted_t2'
 
