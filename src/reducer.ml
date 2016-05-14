@@ -60,7 +60,15 @@ let rec reduce_strict = function
                                         | None -> (* Try E-AppAbs *)
                                                   apply_abs t1 t2
 
-let reduce_normal term = None
+let reduce_lazy = function
+    | Variable v -> None
+    | Abstraction (_, _) -> None
+    | Application (t1, t2) -> (* Try E-App1 *)
+                              let reduced_t1 = reduce_strict t1 in
+                              match reduced_t1 with
+                              | Some t1' -> Some (Application (t1', t2))
+                              | None -> (* Try E-AppAbs *)
+                                        apply_abs t1 t2
 
-let reduce_lazy term = None
+let reduce_normal term = None
 
