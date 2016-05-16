@@ -76,8 +76,6 @@ let rec format_term = function
 ** Bonus 
 *)
 
-(* Note: There should be a simpler solution to parseing than this co-recursion mess, but it works. *)
-
 (* Parse an 'atmoic' (non-application) term *)
 let rec parse_term_conv_ = function
     (* Variable *)

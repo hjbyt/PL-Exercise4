@@ -80,6 +80,44 @@ let fact_s = (Z (\\f. (\\n. ((((test (iszero n)) (\\x. c1)) (\\x. (((times n) (f
 ((equal (fact_s c2)) c2)
 "
 
+(* Extra tests *)
+
+let test_fact_l2 = env ^ "
+let fact_l = (Y (\\f. (\\n. (((test (iszero n)) c1) (((times n) (f (prd n)))))))) in
+((equal (fact_l c3)) c6)
+"
+
+let test_fact_s2 = env ^ "
+let fact_s = (Z (\\f. (\\n. ((((test (iszero n)) (\\x. c1)) (\\x. (((times n) (f (prd n)))))) (\\x.x))))) in
+((equal (fact_s c3)) c6)
+"
+
+let parse_conv_test_cases = [
+    ("x", "x");
+    ("(x)", "x");
+    ("x y", "(x y)");
+    ("\\x. y", "(\\x. y)");
+    ("\\x. \\y. \\z. x y z", "(\\x. (\\y. (\\z. ((x y) z))))");
+    ("a b c d e f", "(((((a b) c) d) e) f)");
+    ("a b (c d) e f", "((((a b) (c d)) e) f)");
+    ("let x = \\y. a (b c) d in x f", "let x = (\\y. ((a (b c)) d)) in (x f)");
+]
+
+let check_parse_conv (conv_string, strict_string) = 
+    let parsed_conv = parse_conv conv_string in
+    let parsed_string = parse strict_string in
+    let formatted_conv = format_term parsed_conv in
+    let formatted_string = format_term parsed_string in
+    let prefix = 
+        if formatted_conv = formatted_string
+        then "OK: "
+        else "MISSMATCH: \"" ^ formatted_conv ^ "\" != \"" ^ formatted_string ^ "\" --- "
+    in
+    print_string (prefix ^ "\"" ^ conv_string ^ "\", \"" ^ strict_string ^ "\"\n")
+
+let check_all_parse_conv_cases () = List.iter check_parse_conv parse_conv_test_cases
+
+(* /Extra tests *)
 
 let test ~verbose ~sem ~reduce s =
   printf "\nEvaluating:\n%s\nin %s semantics:\n\n" s sem;
@@ -102,4 +140,14 @@ let () =
   test_lazy ~verbose:false test_fact_l;
   test_strict ~verbose:false test_fact_s;
   test_normal ~verbose:false test_fact_l;
-  test_normal ~verbose:false test_fact_s
+  test_normal ~verbose:false test_fact_s;
+  
+  (* Extra tests *)
+  
+  test_lazy ~verbose:false test_fact_l2;
+  test_strict ~verbose:false test_fact_s2;
+  test_normal ~verbose:false test_fact_l2;
+  test_normal ~verbose:false test_fact_s2;
+  
+  check_all_parse_conv_cases ();
+  
