@@ -117,6 +117,28 @@ let check_parse_conv (conv_string, strict_string) =
 
 let check_all_parse_conv_cases () = List.iter check_parse_conv parse_conv_test_cases
 
+let format_term_conv_cases = [
+    (parse_conv "x", "x");
+    (parse_conv "(x)", "x");
+    (parse_conv "x y", "x y");
+    (parse_conv "(x y)", "x y");
+    (parse_conv "a b c d e", "a b c d e");
+    (parse_conv "a b (c d) e", "a b (c d) e");
+    (parse_conv "\\x. \\y. \\z. x y z", "\\x. \\y. \\z. x y z");
+    (parse_conv "(\\x. y) t", "(\\x. y) t");
+]
+
+let check_format_term_conv (term, expected) =
+    let formatted = format_term_conv term in
+    let output = 
+        if formatted = expected
+        then "OK: \"" ^ formatted ^ "\" = \"" ^ expected ^ "\""
+        else "MISSMATCH: \"" ^ formatted ^ "\" != \"" ^ expected ^ "\""
+    in
+    print_string (output ^ "\n")
+    
+let check_all_format_term_conv_cases () = List.iter check_format_term_conv format_term_conv_cases
+
 (* /Extra tests *)
 
 let test ~verbose ~sem ~reduce s =
@@ -150,4 +172,6 @@ let () =
   test_normal ~verbose:false test_fact_s2;
   
   check_all_parse_conv_cases ();
-  
+  print_string "\n";
+  check_all_format_term_conv_cases ();
+
